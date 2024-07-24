@@ -126,7 +126,7 @@ func (app *App) GetStudentHandler() func(c echo.Context) error {
 			return c.JSON(apiErr.Code, apiErr)
 		}
 
-		//call repository
+		//call service
 		student, apiErr := app.StudentService.GetStudent(id)
 		if apiErr != nil {
 			return c.JSON(apiErr.Code, apiErr)
@@ -154,7 +154,7 @@ func (app *App) DeleteStudentHandler() func(c echo.Context) error {
 			return c.JSON(apiErr.Code, apiErr)
 		}
 
-		//call repository
+		//call service
 		apiErr := app.StudentService.DeleteStudent(id)
 		if apiErr != nil {
 			return c.JSON(apiErr.Code, apiErr)
