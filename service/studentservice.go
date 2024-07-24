@@ -168,11 +168,11 @@ func validateQueryParams(query Query) *apierror.APIError {
 		return apierror.NewAPIError(422, "Page Size must be between 1 and 20")
 	}
 
-	if validator.ValidateIntegerRange(query.AgeRange.AgeMin, 1, 100) {
+	if !validator.ValidateIntegerRange(query.AgeRange.AgeMin, 1, 100) {
 		return apierror.NewAPIError(422, "ageMin must be between 1 and 100")
 	}
 
-	if validator.ValidateIntegerRange(query.AgeRange.AgeMax, 1, 100) {
+	if !validator.ValidateIntegerRange(query.AgeRange.AgeMax, 1, 100) {
 		return apierror.NewAPIError(422, "ageMax must be between 1 and 100")
 	}
 
