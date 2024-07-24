@@ -5,8 +5,8 @@ type APIError struct {
 	Message string `json:"error_message"`
 }
 
-func (E *APIError) String() string {
-	return string(E.Code) + E.Message
+func (E *APIError) Error() string {
+	return E.Message
 }
 
 func NewAPIError(code int, message string) *APIError {
