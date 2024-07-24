@@ -101,7 +101,7 @@ func (r *StudentRepo) GetStudents(name, email string, ageMin, ageMax, page, page
 	}
 
 	meta := calculateMetadata(count, int(page), int(pageSize))
-	log.Print(meta)
+	// log.Print(meta)
 
 	if startIndex < 0 {
 		startIndex = 0
@@ -123,7 +123,7 @@ func (r *StudentRepo) GetStudents(name, email string, ageMin, ageMax, page, page
 
 	students = students[startIndex:endIndex]
 
-	log.Print(students)
+	// log.Print(students)
 
 	return students, &meta, nil
 
