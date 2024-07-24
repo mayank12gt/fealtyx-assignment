@@ -17,6 +17,19 @@ type StudentService struct {
 	StudentRepo *repository.StudentRepo
 }
 
+type Query struct {
+	Name     string
+	AgeRange AgeRange
+	Email    string
+	PageSize int
+	Page     int
+}
+
+type AgeRange struct {
+	AgeMin int
+	AgeMax int
+}
+
 func (s *StudentService) CreateStudent(student *repository.Student) *apierror.APIError {
 
 	//validate request body
@@ -28,9 +41,24 @@ func (s *StudentService) CreateStudent(student *repository.Student) *apierror.AP
 
 }
 
-func (s *StudentService) GetStudents() ([]repository.Student, *apierror.APIError) {
+func (s *StudentService) GetStudents(query Query) (*repository.Response, *apierror.APIError) {
 
-	return s.StudentRepo.GetStudents()
+	//validate Query Params
+	if err := validateQueryParams(query); err != nil {
+		return nil, err
+	}
+
+	students, meta, err := s.StudentRepo.GetStudents(query.Name, query.Email, query.AgeRange.AgeMin, query.AgeRange.AgeMax, query.Page, query.PageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	response := repository.Response{
+		Students: students,
+		Metadata: *meta,
+	}
+
+	return &response, nil
 
 }
 
@@ -128,4 +156,29 @@ func (s *StudentService) GenerateSummary(student *repository.Student, baseUrl st
 
 	return &summary, nil
 
+}
+
+func validateQueryParams(query Query) *apierror.APIError {
+
+	if query.Page < 1 {
+		return apierror.NewAPIError(422, "Page must be >= 1")
+	}
+
+	if !validator.ValidateIntegerRange(query.PageSize, 1, 20) {
+		return apierror.NewAPIError(422, "Page Size must be between 1 and 20")
+	}
+
+	if validator.ValidateIntegerRange(query.AgeRange.AgeMin, 1, 100) {
+		return apierror.NewAPIError(422, "ageMin must be between 1 and 100")
+	}
+
+	if validator.ValidateIntegerRange(query.AgeRange.AgeMax, 1, 100) {
+		return apierror.NewAPIError(422, "ageMax must be between 1 and 100")
+	}
+
+	if query.AgeRange.AgeMin > query.AgeRange.AgeMax {
+		return apierror.NewAPIError(422, "ageMin must be less than ageMax")
+	}
+
+	return nil
 }

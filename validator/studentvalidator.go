@@ -7,15 +7,15 @@ import (
 
 func ValidateStudent(student *repository.Student) *apierror.APIError {
 
-	if !validateIntegerRange(len(student.Name), 3, 50) {
+	if !ValidateIntegerRange(len(student.Name), 3, 50) {
 		return apierror.NewAPIError(422, "Name must be between 3 and 50 characters")
 	}
 
-	if !validateIntegerRange(student.Age, 1, 100) {
+	if !ValidateIntegerRange(student.Age, 1, 100) {
 		return apierror.NewAPIError(422, "Age must be between 1 and 100")
 	}
 
-	if !validateEmail(student.Email) {
+	if !ValidateEmail(student.Email) {
 		return apierror.NewAPIError(422, "Invalid email id")
 	}
 

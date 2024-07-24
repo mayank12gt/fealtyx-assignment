@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	apierror "github.com/mayank12gt/fealtyx_assignment/error"
 	"github.com/mayank12gt/fealtyx_assignment/repository"
+	"github.com/mayank12gt/fealtyx_assignment/service"
 )
 
 func (app *App) HealthCheckHandler() func(c echo.Context) error {
@@ -21,12 +22,66 @@ func (app *App) HealthCheckHandler() func(c echo.Context) error {
 func (app *App) GetStudentsHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 
-		students, err := app.StudentService.GetStudents()
-		if err != nil {
-			return c.JSON(err.Code, err)
+		name := c.QueryParam("name")
+		email := c.QueryParam("email")
+		var ageMin, ageMax, page, pageSize int
+		var err error
+		if c.QueryParam("ageMin") != "" {
+			ageMin, err = strconv.Atoi(c.QueryParam("ageMin"))
+			if err != nil {
+				apiErr := apierror.NewAPIError(400, "ageMin must be an integer")
+				return c.JSON(apiErr.Code, apiErr)
+			}
+		} else {
+			ageMin = 1
+		}
+		if c.QueryParam("ageMax") != "" {
+			ageMax, err = strconv.Atoi(c.QueryParam("ageMax"))
+			if err != nil {
+				apiErr := apierror.NewAPIError(400, "ageMax must be an integer")
+				return c.JSON(apiErr.Code, apiErr)
+			}
+		} else {
+			ageMax = 100
 		}
 
-		return c.JSON(200, students)
+		if c.QueryParam("page") != "" {
+			page, err = strconv.Atoi(c.QueryParam("page"))
+			if err != nil {
+				apiErr := apierror.NewAPIError(400, "page must be an integer")
+				return c.JSON(apiErr.Code, apiErr)
+			}
+		} else {
+			page = 1
+		}
+
+		if c.QueryParam("page_size") != "" {
+			pageSize, err = strconv.Atoi(c.QueryParam("page_size"))
+			if err != nil {
+				apiErr := apierror.NewAPIError(400, "page size must be an integer")
+				return c.JSON(apiErr.Code, apiErr)
+			}
+		} else {
+			pageSize = 20
+		}
+
+		query := service.Query{
+			Name:  name,
+			Email: email,
+			AgeRange: service.AgeRange{
+				AgeMin: ageMin,
+				AgeMax: ageMax,
+			},
+			Page:     page,
+			PageSize: pageSize,
+		}
+
+		response, err2 := app.StudentService.GetStudents(query)
+		if err2 != nil {
+			return c.JSON(err2.Code, err2)
+		}
+
+		return c.JSON(200, response)
 	}
 
 }
